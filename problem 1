@@ -51,3 +51,7 @@ int main() {
     drop_tcp_port_4040(80);
     return 0;
 }
+
+output:
+Dropping TCP packet destined for port 4040
+Passing packet for port 80
