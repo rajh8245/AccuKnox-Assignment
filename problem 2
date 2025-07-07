@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+// Simulated TCP packet structure
+struct packet {
+    char process_name[16];
+    uint16_t tcp_dest_port;
+};
+
+// Our filter: allow only if process is "myprocess" and port is 4040
+int filter_packet(struct packet *pkt) {
+    const char *allowed_process = "myprocess";
+    const uint16_t allowed_port = 4040;
+
+    // Check if process name matches
+    if (strcmp(pkt->process_name, allowed_process) != 0) {
+        return 1; // allow other processes
+    }
+
+    // If it's "myprocess", allow only port 4040
+    if (pkt->tcp_dest_port == allowed_port) {
+        return 1; // allow
+    }
+
+    return 0; // drop
+}
+
+int main() {
+    struct packet test1 = { "myprocess", 4040 };
+    struct packet test2 = { "myprocess", 22 };
+    struct packet test3 = { "ssh", 4040 };
+    struct packet test4 = { "ssh", 22 };
+
+    struct packet tests[] = { test1, test2, test3, test4 };
+    int count = sizeof(tests) / sizeof(tests[0]);
+
+    for (int i = 0; i < count; i++) {
+        printf("Packet %d: process=%s, port=%d => %s\n",
+            i + 1,
+            tests[i].process_name,
+            tests[i].tcp_dest_port,
+            filter_packet(&tests[i]) ? "ALLOWED" : "DROPPED");
+    }
+
+    return 0;
+}
+
+
+Output:
+Packet 1: process=myprocess, port=4040 => ALLOWED
+Packet 2: process=myprocess, port=22 => DROPPED
+Packet 3: process=ssh, port=4040 => ALLOWED
+Packet 4: process=ssh, port=22 => ALLOWED
