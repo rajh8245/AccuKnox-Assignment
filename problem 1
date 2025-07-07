@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdint.h>
+
+#define ETH_P_IP 0x0800
+#define IPPROTO_TCP 6
+
+struct ethhdr {
+    uint8_t  h_dest[6];
+    uint8_t  h_source[6];
+    uint16_t h_proto;
+};
+
+struct iphdr {
+    uint8_t  ihl:4;
+    uint8_t  version:4;
+    uint8_t  tos;
+    uint16_t tot_len;
+    uint16_t id;
+    uint16_t frag_off;
+    uint8_t  ttl;
+    uint8_t  protocol;
+    uint16_t check;
+    uint32_t saddr;
+    uint32_t daddr;
+};
+
+struct tcphdr {
+    uint16_t source;
+    uint16_t dest;
+    uint32_t seq;
+    uint32_t ack_seq;
+    uint16_t res1doff;
+    uint16_t flags;
+    uint16_t window;
+    uint16_t check;
+    uint16_t urg_ptr;
+};
+
+// Fake function to simulate dropping
+int drop_tcp_port_4040(uint16_t tcp_dest_port) {
+    if (tcp_dest_port == 4040) {
+        printf("Dropping TCP packet destined for port 4040\n");
+        return 1; // drop
+    }
+    printf("Passing packet for port %d\n", tcp_dest_port);
+    return 0; // pass
+}
+
+int main() {
+    drop_tcp_port_4040(4040);
+    drop_tcp_port_4040(80);
+    return 0;
+}
